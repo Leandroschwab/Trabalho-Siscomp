@@ -13,16 +13,15 @@ def cadastro():
     data.append("CadastroPaciente")
     x = raw_input("digite seu nome: ")
     data.append(x)
-    x = raw_input("digite o nome de usuario")
+    x = raw_input("digite o nome de usuario: ")
     data.append(x)
-    x = raw_input(" digite sua senha")
+    x = raw_input("digite sua senha: ")
     data.append(x)
     x = raw_input("digite o nome o id: digite 1 para listar os medicos")
     while x == "1":
-        x = raw_input("digite o id do medico:")
+        x = raw_input("digite o id do medico: ")
     data.append(x)
     sendServer(vetorToString(data))
-
 
 def Login():
     print "---------------------------"
@@ -47,5 +46,4 @@ def Menu1():
         if x== "2":
             cadastro()
         time.sleep(3)
-
 Menu1()
