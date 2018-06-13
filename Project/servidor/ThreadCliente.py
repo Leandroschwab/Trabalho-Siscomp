@@ -10,22 +10,23 @@ def novaConn(conn):
         msgRecA = msgRec.split("-,-")
         print "Servidou msgRecA: " + msgRecA[0]
         if msgRecA[0]== "CadastroMedico":
-            cadastroMedico(msgRecA[1],msgRecA[2],msgRecA[3])
+            cadastroMedico(conn,msgRecA[1],msgRecA[2],msgRecA[3])
         if msgRecA[0]== "CadastroPaciente":
-            cadastroPaciente(msgRecA[1],msgRecA[2],msgRecA[3],msgRecA[4])
+            cadastroPaciente(conn,msgRecA[1],msgRecA[2],msgRecA[3],msgRecA[4])
     conn.close()  # Fecha conexão
-def cadastroMedico(nome,user,senha):
+def cadastroMedico(conn,nome,user,senha):
     conn = sqlite3.connect('db/server.db')
     cursor = conn.cursor()
     insert_stmt =("INSERT INTO Users (nome, usuario, senha, medico) VALUES ('"+nome+"','"+user+"','"+senha+"',1)")
     cursor.execute(insert_stmt)
     conn.commit()
     print "Servidou: Novo medico cadastrado com Sucesso "
+   # conn.sendall("Mensagem-,-Servidou: Novo medico cadastrado com Sucesso ")
     conn.close()
 
-def cadastroPaciente(nome,user,senha,medicoid):
-    conn = sqlite3.connect('db/server.db')
-    cursor = conn.cursor()
+def cadastroPaciente(conn,nome,user,senha,medicoid):
+    connSQL = sqlite3.connect('db/server.db')
+    cursor = connSQL.cursor()
     cursor.execute("SELECT medico FROM Users WHERE ID='"+medicoid+"';")
     data = cursor.fetchone()
     if data:
@@ -34,8 +35,10 @@ def cadastroPaciente(nome,user,senha,medicoid):
             cursor.execute(insert_stmt)
             conn.commit()
             print "Servidou: Novo Paciente cadastrado com Sucesso aguardando autorizaçao do medico"
-            conn.close()
+            conn.sendall("MsgCadastro-,-SucessoCadastro-,-Servidou: Novo Paciente cadastrado com Sucesso aguardando autorizaçao do medico")
         else:
             print "usuario nao é medico"
+            conn.sendall("MsgCadastro-,-ErroCadastro-,-Servidou: Medico nao encontrado")
     else:
         print "usuario nao existe"
+        conn.sendall("MsgCadastro-,-ErroCadastro-,-Servidou: Medico nao encontrado")

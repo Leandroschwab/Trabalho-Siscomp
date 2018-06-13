@@ -1,11 +1,21 @@
 # -*- coding: utf-8 -*-
 import socket
+from Functions import *
 
-HOST = '127.0.0.1'  # The remote host
-PORT = 50007  # The same port as used by the server
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # qw12IPv4,tipo de socket
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.connect((HOST, PORT))  # Abre uma conexão com IP e porta especificados
-print "Conectou"
-def sendServer(mensagem):
-    s.sendall(mensagem)  # Envia dados
+
+def sendServer(connS,mensagem):
+    connS.sendall(mensagem)  # Envia dados
+
+def recvServer(connS,printLock,varData):
+    printLock.acquire()
+    print "Cliente esta pronto para receber dados do servidor"
+    printLock.release()
+    while 1:
+        data = connS.recv(1024)  # Recebe os dados
+        if not data: break
+        print "Recebeu debug: " + str(data)
+        msgRec = str(data)
+        msgRecA = msgRec.split("-,-")
+        if msgRecA[0] == "MsgCadastro":
+            print()
+

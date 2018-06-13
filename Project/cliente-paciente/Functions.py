@@ -6,3 +6,4 @@ def vetorToString(vetor):
         mensagem += vetor[i]
         i += 1
     return mensagem
+
