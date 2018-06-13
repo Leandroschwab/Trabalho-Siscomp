@@ -1,0 +1,2 @@
+socket precisa de lock
+- Receber alarmes sobre potenciais problemas e dicas sobre o que fazer, tocar um som e dar a opção de ver o conteúdo 
