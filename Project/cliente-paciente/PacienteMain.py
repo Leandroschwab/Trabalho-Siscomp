@@ -6,11 +6,11 @@ from threading import Thread, Lock, BoundedSemaphore, Semaphore
 
 
 def cadastro(connS):
-    printLock.acquire()
+    myLock.acquire()
     print "---------------------------"
     print "Iniciando Cadastro"
     print "---------------------------"
-    printLock.release()
+    myLock.release()
     data = []
     data.append("CadastroPaciente")
     x = raw_input("digite seu nome: ")
@@ -19,7 +19,7 @@ def cadastro(connS):
     data.append(x)
     x = raw_input("digite sua senha: ")
     data.append(x)
-    x = raw_input("digite o nome o id: digite 1 para listar os medicos")
+    x = raw_input("digite o nome o id: digite 1 para listar os medicos: ")
     while x == "1":
         x = raw_input("digite o id do medico: ")
     data.append(x)
@@ -27,54 +27,60 @@ def cadastro(connS):
     time.sleep(3)
 
 
-def Login(connS):
-    printLock.acquire()
+def login(connS):
+    myLock.acquire()
     print "---------------------------"
     print "Iniciando Login"
     print "---------------------------"
     print "Login iniciado"
-    printLock.release()
+    myLock.release()
     data = []
-    data.append("Login")
-    x = raw_input("digite o nome de usuario")
+    data.append("LoginPaciente")
+    x = raw_input("digite o nome de usuario: ")
     data.append(x)
-    x = raw_input(" digite sua senha")
+    x = raw_input("digite sua senha: ")
+    data.append(x)
+    sendServer(connS, vetorToString(data))
 
-
-def Menu1(connS):
+def menu1(connS):
+    myLock.acquire()
     x = raw_input("digite 1-login 2-cadastro: ")
+    myLock.release()
     while (x != "1" and x != "2"):
         if (x != "1" and x != "2"):
-            printLock.acquire()
+            myLock.acquire()
             x = raw_input("voce digitou errado digite 1 para login 2 para cadastro: ")
-            printLock.release()
+            myLock.release()
     if x == "1":
-        Login(connS)
+        login(connS)
     if x == "2":
         cadastro(connS)
     time.sleep(3)
-
+def menu2(connS):
+    print 'menu'
 
 if __name__ == "__main__":
 
     global varData
     varData = {}
-    global PrintLock
-    printLock = Semaphore()
+    global myLock
+    myLock = Semaphore()
     HOST = '127.0.0.1'  # The remote host
     PORT = 50007  # The same port as used by the server
     connS = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # qw12IPv4,tipo de socket
     connS.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     connS.connect((HOST, PORT))  # Abre uma conexão com IP e porta especificados
-    printLock.acquire()
+    myLock.acquire()
     print "Iniciando Cliente Paciente"
     print "Conectado"
-    printLock.release()
-    varData['login'] = False
+    myLock.release()
+    varData['logado'] = False
 
 
-    t = Thread(target=recvServer, args=(connS,printLock,varData))
+    t = Thread(target=recvServer, args=(connS,myLock,varData))
     t.start()
     while 1:
-        if varData['login']==False :
-            Menu1(connS)
+        if varData['logado'] == False :
+            menu1(connS)
+        if varData['logado']:
+            menu2(connS)
