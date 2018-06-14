@@ -20,7 +20,7 @@ def cadastro(connS):
     x = raw_input("digite sua senha: ")
     data.append(x)
     sendServer(connS, vetorToString(data))
-    time.sleep(3)
+    time.sleep(1)
 
 
 def login(connS):
@@ -28,7 +28,6 @@ def login(connS):
     print "---------------------------"
     print "Iniciando Login"
     print "---------------------------"
-    print "Login iniciado"
     myLock.release()
     data = []
     data.append("LoginMedico")
@@ -37,6 +36,25 @@ def login(connS):
     x = raw_input("digite sua senha: ")
     data.append(x)
     sendServer(connS, vetorToString(data))
+
+def authPacientes(connS):
+    myLock.acquire()
+    print "---------------------------"
+    print "Iniciando authPaciente"
+    print "---------------------------"
+    print "Listando Pacientes"
+    myLock.release()
+    x="AuthPacienteList"
+    sendServer(connS, x)
+    time.sleep(1)
+    myLock.acquire()
+    data = []
+    data.append("AuthPacienteID")
+    x = raw_input("digite o id do usuario: ")
+    data.append(x)
+    myLock.release()
+    sendServer(connS, vetorToString(data))
+
 
 def menu1(connS):
     myLock.acquire()
@@ -51,10 +69,22 @@ def menu1(connS):
         login(connS)
     if x == "2":
         cadastro(connS)
-    time.sleep(3)
-def menu2(connS):
-    print 'menu'
+    time.sleep(1)
 
+def menu2(connS):
+    myLock.acquire()
+    x = raw_input("digite 1-Autorizar Pacientes 2-nada: ")
+    myLock.release()
+    while (x != "1" and x != "2"):
+        if (x != "1" and x != "2"):
+            myLock.acquire()
+            x = raw_input("voce digitou errado: ")
+            myLock.release()
+    if x == "1":
+        authPacientes(connS)
+    if x == "2":
+        cadastro(connS)
+    time.sleep(1)
 if __name__ == "__main__":
 
     global varData

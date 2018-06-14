@@ -18,9 +18,21 @@ def novaConn(conn):
         if msgRecA[0] == "LoginPaciente":
             loginPaciente(conn, msgRecA[1], msgRecA[2])
         if msgRecA[0] == "LoginMedico":
-            loginPaciente(conn, msgRecA[1], msgRecA[2])
+            loginMedico(conn, msgRecA[1], msgRecA[2])
 
     conn.close()  # Fecha conexão
+def MedicoLogado(conn,idMedico):
+    while 1:
+        data = conn.recv(1024)  # Recebe os dados
+        if not data: break
+        print "Servidou recebeu: " + str(data)
+        msgRec = str(data)
+        msgRecA = msgRec.split("-,-")
+        print "Servidou msgRecA: " + msgRecA[0]
+        if msgRecA[0] == "AuthPacienteList":
+            authPacienteList(conn, idMedico)
+
+
 
 
 def cadastroMedico(conn, nome, user, senha):
@@ -52,6 +64,7 @@ def loginMedico(conn, user, senha):
             if data[4] == 1:  # verifica se o usuario é medico
                 print "Servidou: Usuario logou com sucesso"
                 conn.sendall("MsgLogin-,-SucessoLogin-,-Paciente logado com sucesso")
+                MedicoLogado(conn, data[0])
             else:
                 print "Servidou: paciente tentou fazer login no programa medico"
                 conn.sendall("MsgLogin-,-FalhaLogin-,-Utilize o programa do Paciente")

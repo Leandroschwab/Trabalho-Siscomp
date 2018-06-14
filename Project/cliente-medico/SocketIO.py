@@ -2,7 +2,6 @@
 import socket
 from Functions import *
 
-
 def sendServer(connS,mensagem):
     connS.sendall(mensagem)  # Envia dados
 
@@ -36,4 +35,12 @@ def recvServer(connS,myLock,varData):
                 varData['logado'] = True
                 print msgRecA[2]
                 myLock.release()
-
+        if msgRecA[0] == "MsgListaAutoriza":
+            if msgRecA[1]=="FalhaLista":
+                myLock.acquire()
+                print msgRecA[2]
+                myLock.release()
+            if msgRecA[1]=="SucessoLista":
+                myLock.acquire()
+                print msgRecA[2]
+                myLock.release()
