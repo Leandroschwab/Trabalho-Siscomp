@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import time
-from SocketIO import *
+from RecebeServer import *
+from EnviaServer import *
 from Functions import *
+
 from threading import Thread, Lock, BoundedSemaphore, Semaphore
 
 
@@ -24,7 +26,7 @@ def cadastro(connS):
         x = raw_input("digite o id do medico: ")
     data.append(x)
     sendServer(connS, vetorToString(data))
-    time.sleep(3)
+    time.sleep(0.3)
 
 
 def login(connS):
@@ -41,6 +43,7 @@ def login(connS):
     x = raw_input("digite sua senha: ")
     data.append(x)
     sendServer(connS, vetorToString(data))
+    time.sleep(0.3)
 
 def menu1(connS):
     myLock.acquire()
@@ -55,9 +58,11 @@ def menu1(connS):
         login(connS)
     if x == "2":
         cadastro(connS)
-    time.sleep(3)
+    time.sleep(0.3)
+
 def menu2(connS):
-    print 'menu'
+    print 'menu2'
+    time.sleep(0.3)
 
 if __name__ == "__main__":
 
@@ -79,6 +84,7 @@ if __name__ == "__main__":
 
     t = Thread(target=recvServer, args=(connS,myLock,varData))
     t.start()
+    time.sleep(0.3)
     while 1:
         if varData['logado'] == False :
             menu1(connS)

@@ -20,7 +20,7 @@ def cadastro(connS):
     x = raw_input("digite sua senha: ")
     data.append(x)
     sendServer(connS, vetorToString(data))
-    time.sleep(1)
+    time.sleep(0.3)
 
 
 def login(connS):
@@ -36,6 +36,7 @@ def login(connS):
     x = raw_input("digite sua senha: ")
     data.append(x)
     sendServer(connS, vetorToString(data))
+    time.sleep(0.3)
 
 def authPacientes(connS):
     myLock.acquire()
@@ -46,7 +47,7 @@ def authPacientes(connS):
     myLock.release()
     x="AuthPacienteList"
     sendServer(connS, x)
-    time.sleep(1)
+    time.sleep(0.3)
     myLock.acquire()
     data = []
     data.append("AuthPacienteID")
@@ -54,6 +55,7 @@ def authPacientes(connS):
     data.append(x)
     myLock.release()
     sendServer(connS, vetorToString(data))
+    time.sleep(0.3)
 
 
 def menu1(connS):
@@ -62,6 +64,7 @@ def menu1(connS):
     myLock.release()
     while (x != "1" and x != "2"):
         if (x != "1" and x != "2"):
+            time.sleep(0.3)
             myLock.acquire()
             x = raw_input("voce digitou errado digite 1 para login 2 para cadastro: ")
             myLock.release()
@@ -69,7 +72,7 @@ def menu1(connS):
         login(connS)
     if x == "2":
         cadastro(connS)
-    time.sleep(1)
+    time.sleep(0.3)
 
 def menu2(connS):
     myLock.acquire()
@@ -77,6 +80,7 @@ def menu2(connS):
     myLock.release()
     while (x != "1" and x != "2"):
         if (x != "1" and x != "2"):
+            time.sleep(0.3)
             myLock.acquire()
             x = raw_input("voce digitou errado: ")
             myLock.release()
@@ -84,7 +88,8 @@ def menu2(connS):
         authPacientes(connS)
     if x == "2":
         cadastro(connS)
-    time.sleep(1)
+    time.sleep(0.3)
+
 if __name__ == "__main__":
 
     global varData
@@ -101,10 +106,10 @@ if __name__ == "__main__":
     print "Conectado"
     myLock.release()
     varData['logado'] = False
-
-
     t = Thread(target=recvServer, args=(connS,myLock,varData))
     t.start()
+
+    time.sleep(0.3)
     while 1:
         if varData['logado'] == False :
             menu1(connS)
