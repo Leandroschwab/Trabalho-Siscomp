@@ -61,7 +61,6 @@ def menu1(connS):
     time.sleep(0.3)
 
 def menu2(connS):
-    print 'menu2'
     time.sleep(0.3)
 
 if __name__ == "__main__":

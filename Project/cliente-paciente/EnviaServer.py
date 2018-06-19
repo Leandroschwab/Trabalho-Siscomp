@@ -6,13 +6,14 @@ from Functions import *
 from threading import Thread, Lock, BoundedSemaphore, Semaphore
 import time
 
-
 def sendServer(connS, mensagem):
     connS.sendall(mensagem + "-+,+-")  # Envia dados
 
 
 def backGroundTask(connS, myLock, varData):
-    sensores(connS, myLock, varData)
+    while 1:
+        sensores(connS, myLock, varData)
+        time.sleep(3)
 
 def sensores(connS, myLock, varData):
     data = []
@@ -37,7 +38,6 @@ def getBatimento():
         valor += random.randint(30, 100)
     return valor
 
-
 def getPressao():
     valor1 = 12
     aleatorio = random.randint(0, 100)
@@ -51,7 +51,7 @@ def getPressao():
         valor2 = valor1 - random.randint(2, 4)
     else:
         #print "pressao alta"
-        valor1 += random.randint(1, 4)
+        valor1 += random.randint(2, 4)
         valor2 = valor1 - random.randint(2, 4)
     return [valor1,valor2]
 
@@ -66,7 +66,7 @@ def getTemp():
         valor += round(random.uniform(-1,1), 1)#random.randrange(-1, 1,0.1)
     else:
         #print "temperatura alta"
-        valor += round(random.uniform(1.1,2), 1)#random.randrange(1.1, 2,0.1)
+        valor += round(random.uniform(1.1,4), 1)#random.randrange(1.1, 2,0.1)
     return valor
 
 def getLocal():

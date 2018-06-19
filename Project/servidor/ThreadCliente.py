@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import sqlite3
 from Functions import *
+from threading import Thread, Lock, BoundedSemaphore, Semaphore
 import time
 
 
-def novaConn(conn):
+def novaConn(conn, myLock):
     while 1:
         data = conn.recv(1024)  # Recebe os dados
         if not data: break
@@ -18,29 +19,16 @@ def novaConn(conn):
             if msgRecA[0] == "CadastroPaciente":
                 cadastroPaciente(conn, msgRecA[1], msgRecA[2], msgRecA[3], msgRecA[4])
             if msgRecA[0] == "LoginPaciente":
-                loginPaciente(conn, msgRecA[1], msgRecA[2])
+                loginPaciente(conn, myLock, msgRecA[1], msgRecA[2])
             if msgRecA[0] == "LoginMedico":
-                loginMedico(conn, msgRecA[1], msgRecA[2])
+                loginMedico(conn, myLock, msgRecA[1], msgRecA[2])
             if msgRecA[0] == "ColetaSensores":
                 recSensors(conn, msgRecA[1], msgRecA[2], msgRecA[3], msgRecA[4], msgRecA[5], msgRecA[6])
 
     conn.close()  # Fecha conexão
 
 
-def medicoLogado(conn, idMedico):
-    while 1:
-        data = conn.recv(1024)  # Recebe os dados
-        if not data: break
-        print "Servidou recebeu data: " + str(data)
-        msgRec = str(data).split("-+,+-")
-        for linha in msgRec:
-            msgRecA = linha.split("-,-")
-            print "Servidou recebeu linha: " + str(linha)
-            print "Servidou msgRecA: " + msgRecA[0]
-            if msgRecA[0] == "ColetaSensores":
-                recSensors(conn, msgRecA[1], msgRecA[2], msgRecA[3], msgRecA[4], msgRecA[5], msgRecA[6])
-
-def pacienteLogado(conn, idMedico):
+def medicoLogado(conn, myLock, idMedico):
     while 1:
         data = conn.recv(1024)  # Recebe os dados
         if not data: break
@@ -54,6 +42,22 @@ def pacienteLogado(conn, idMedico):
                 authPacienteList(conn, idMedico)
             if msgRecA[0] == "AuthPacienteID":
                 newPacienteDB(conn, idMedico, msgRecA[1])
+
+
+def pacienteLogado(conn, myLock, idPaciente, idMedico, nomeP):
+    while 1:
+        data = conn.recv(1024)  # Recebe os dados
+        if not data: break
+        print "Servidou recebeu data: " + str(data)
+        msgRec = str(data).split("-+,+-")
+        for linha in msgRec:
+            msgRecA = linha.split("-,-")
+            print "Servidou recebeu linha: " + str(linha)
+            print "Servidou msgRecA: " + msgRecA[0]
+            if msgRecA[0] == "ColetaSensores":
+                recSensors(conn, myLock, idPaciente, idMedico, nomeP, msgRecA[1], msgRecA[2], msgRecA[3], msgRecA[4],
+                           msgRecA[5], msgRecA[6])
+
 
 def cadastroMedico(conn, nome, user, senha):
     connSQL = sqlite3.connect('db/server.db')
@@ -74,7 +78,7 @@ def cadastroMedico(conn, nome, user, senha):
         sendServer(conn, "MsgCadastro-,-SucessoCadastro-,-Novo Medico cadastrado com Sucesso voce pode fazer o login")
 
 
-def loginMedico(conn, user, senha):
+def loginMedico(conn, myLock, user, senha):
     connSQL = sqlite3.connect('db/server.db')
     cursor = connSQL.cursor()
     cursor.execute("SELECT * FROM Users WHERE usuario='" + user + "';")
@@ -84,7 +88,7 @@ def loginMedico(conn, user, senha):
             if data[4] == 1:  # verifica se o usuario é medico
                 print "Servidou: Usuario logou com sucesso"
                 sendServer(conn, "MsgLogin-,-SucessoLogin-,-Paciente logado com sucesso")
-                medicoLogado(conn, data[0])
+                medicoLogado(conn, myLock, data[0])
             else:
                 print "Servidou: paciente tentou fazer login no programa medico"
                 sendServer(conn, "MsgLogin-,-FalhaLogin-,-Utilize o programa do Paciente")
@@ -123,7 +127,7 @@ def cadastroPaciente(conn, nome, user, senha, medicoid):
             sendServer(conn, "MsgCadastro-,-ErroCadastro-,-Medico nao encontrado")
 
 
-def loginPaciente(conn, user, senha):
+def loginPaciente(conn, myLock, user, senha):
     connSQL = sqlite3.connect('db/server.db')
     cursor = connSQL.cursor()
     cursor.execute("SELECT * FROM Users WHERE usuario='" + user + "';")
@@ -134,7 +138,7 @@ def loginPaciente(conn, user, senha):
                 if data[6] == 1:  # verifica se o medico ja autorizou o paciente
                     print "Servidou: Usuario logou com sucesso"
                     sendServer(conn, "MsgLogin-,-SucessoLogin-,-Paciente logado com sucesso")
-                    pacienteLogado(conn, data[0])
+                    pacienteLogado(conn, myLock, data[0], data[5],data[1])
                 else:
                     print "Servidou: Usuario nao autorizado"
                     sendServer(conn, "MsgLogin-,-FalhaLogin-,-Paciente Nao foi autorizado")
@@ -148,6 +152,27 @@ def loginPaciente(conn, user, senha):
         print "Servidou: Usuario nao existe"
         sendServer(conn, "MsgLogin-,-FalhaLogin-,-Usuario incorreto")
 
-def recSensors(conn,myLock, dataehora, batimento, pressao1, pressao2, temperatura, local):
-    pressaoSTR = pressao1+" - "+ pressao2
-    saveSensorSQL()
+
+def recSensors(conn, myLock, idPaciente, idMedico, nomeP, dataehora, batimento, pressao1, pressao2, temperatura, local):
+    pressaoSTR = pressao1 + " - " + pressao2
+    saveSensorSQL(myLock, idPaciente, idMedico, dataehora, batimento, pressaoSTR, temperatura, local)
+    if int(batimento) > 80:
+        mensagem = "Paciente " + nomeP + " esteve com batimento Cardiaco alto valor: " + batimento + " Horario: " + dataehora
+        saveMensagemMedico(myLock, idMedico, "alertaSensorPaciente", mensagem)
+        sendServer(conn, "alertaSensorPaciente-,- Seu batimento cardiaco esta acelerado, pls dont die")
+    if int(pressao1)<10:
+        mensagem = "Paciente " + nomeP + " esteve com pressao baixa valor: " + pressaoSTR  + " Horario: " + dataehora
+        saveMensagemMedico(myLock, idMedico, "alertaSensorPaciente", mensagem)
+        sendServer(conn, "alertaSensorPaciente-,- Sua pressao esta baixa, pls dont die")
+    elif int(pressao1)>14:
+        mensagem = "Paciente " + nomeP + " esteve com pressao alta valor: " + pressaoSTR  + " Horario: " + dataehora
+        saveMensagemMedico(myLock, idMedico, "alertaSensorPaciente", mensagem)
+        sendServer(conn, "alertaSensorPaciente-,- Sua pressao esta alta, pls dont die")
+    if float(temperatura)<35.5:
+        mensagem = "Paciente " + nomeP + " esteve com temperatura baixa valor: " + temperatura  + " Horario: " + dataehora
+        saveMensagemMedico(myLock, idMedico, "alertaSensorPaciente", mensagem)
+        sendServer(conn, "alertaSensorPaciente-,- Sua temperatura esta baixa, pls dont die")
+    elif float(temperatura)>37.5:
+        mensagem = "Paciente " + nomeP + " esteve com temperatura alta valor: " + temperatura + " Horario: " + dataehora
+        saveMensagemMedico(myLock, idMedico, "alertaSensorPaciente", mensagem)
+        sendServer(conn, "alertaSensorPaciente-,- Sua temperatura esta alta, pls dont die")
