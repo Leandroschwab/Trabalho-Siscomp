@@ -37,4 +37,7 @@ def recvServer(connS,myLock,varData):
                     varData['logado'] = True
                     print msgRecA[2]
                     myLock.release()
-
+            if msgRecA[0] == "alertaSensorPaciente":
+                myLock.acquire()
+                print msgRecA[1]
+                myLock.release()

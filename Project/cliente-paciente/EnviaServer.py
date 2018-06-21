@@ -13,7 +13,7 @@ def sendServer(connS, mensagem):
 def backGroundTask(connS, myLock, varData):
     while 1:
         sensores(connS, myLock, varData)
-        time.sleep(3)
+        time.sleep(60)
 
 def sensores(connS, myLock, varData):
     data = []

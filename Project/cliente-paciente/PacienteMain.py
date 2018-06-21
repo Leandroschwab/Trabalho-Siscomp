@@ -46,14 +46,14 @@ def login(connS):
     time.sleep(0.3)
 
 def menu1(connS):
-    myLock.acquire()
+    #myLock.acquire()
     x = raw_input("digite 1-login 2-cadastro: ")
-    myLock.release()
+    #myLock.release()
     while (x != "1" and x != "2"):
         if (x != "1" and x != "2"):
-            myLock.acquire()
+            #myLock.acquire()
             x = raw_input("voce digitou errado digite 1 para login 2 para cadastro: ")
-            myLock.release()
+            #myLock.release()
     if x == "1":
         login(connS)
     if x == "2":

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import sqlite3
 import time
 
@@ -11,7 +12,7 @@ def newMedicoDB(idMedico):
     connSQL = sqlite3.connect('db/' + str(idMedico) + '.db')
     cursor = connSQL.cursor()
     cursor.execute(
-        "CREATE TABLE medico (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,tipo TEXT NOT NULL,mensagem TEXT ,recebido TEXT);")
+        "CREATE TABLE medico (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,tipo TEXT NOT NULL,mensagem TEXT ,recebido TEXT,paciente TEXT);")
 
 
 def authPacienteList(conn, idMedico):
@@ -24,6 +25,31 @@ def authPacienteList(conn, idMedico):
             sendServer(conn, "MsgListaAutoriza-,-SucessoLista-,-" + str(linha[0]) + "        " + str(linha[1]) + ";")
     else:
         sendServer(conn, "MsgListaAutoriza-,-FalhaLista-,-Nao tem pacientes esperando aprovacao")
+
+
+def listPacienteDB(conn, idMedico):
+    connSQL = sqlite3.connect('db/server.db')
+    cursor = connSQL.cursor()
+    cursor.execute("SELECT id, nome FROM Users WHERE responsavel = '" + str(idMedico) + "' and autorizado='1' ;")
+    data = cursor.fetchall()
+    if data:
+        for linha in data:
+            sendServer(conn, "MsgListaAprovados-,-SucessoLista-,-" + str(linha[0]) + "        " + str(linha[1]) + ";")
+    else:
+        sendServer(conn, "MsgListaAutoriza-,-FalhaLista-,-Nao tem pacientes esperando aprovacao")
+
+
+def listPacienteHistorico(conn, idMedico, idPaciente):
+    connSQL = sqlite3.connect('db/' + str(idMedico) + '.db')
+    cursor = connSQL.cursor()
+    cursor.execute("SELECT * FROM id" + str(idPaciente) + "data WHERE 1 ;")
+    data = cursor.fetchall()
+    if data:
+        for linha in data:
+            sendServer(conn, "MsgListaHistorico-,-SucessoLista-,-" + str(linha[2]) + "        " + str(
+                linha[3]) + "        " + str(linha[4]) + "        " + str(linha[5]) + ";")
+    else:
+        sendServer(conn, "MsgListaAutoriza-,-FalhaLista-,-Nao foi encontrado historico")
 
 
 # fim das funçoes medico
@@ -63,20 +89,23 @@ def newPacienteDB(conn, idMedico, idPaciente):
         print "Servidou: Usuario nao existe"
         sendServer(conn, "MsgAutoriza-,-FalhaAutoriza-,-Id usuario incorreto")
 
+
 def saveSensorSQL(myLock, idPaciente, idMedico, dataehora, batimento, pressaoSTR, temperatura, local):
     connSQL = sqlite3.connect('db/' + str(idMedico) + '.db')
     cursor = connSQL.cursor()
     insert_stmt = (
             "INSERT INTO id" + str(
-                    idPaciente) + "data (hora, batimentos, pressao, temperatura,local) VALUES ('" + dataehora + "','" + batimento + "','" + pressaoSTR+ "','" + temperatura + "','"+local+"')")
+        idPaciente) + "data (hora, batimentos, pressao, temperatura,local) VALUES ('" + dataehora + "','" + batimento + "','" + pressaoSTR + "','" + temperatura + "','" + local + "')")
     cursor.execute(insert_stmt)
     connSQL.commit()
     print " Sensores Salvos BD"
 
-def saveMensagemMedico(myLock,idMedico,tipo,mensagem):
+
+def saveMensagemMedico(myLock, idMedico, tipo, mensagem, idPaciente):
     connSQL = sqlite3.connect('db/' + str(idMedico) + '.db')
     cursor = connSQL.cursor()
     insert_stmt = (
-            "INSERT INTO medico (tipo, mensagem, recebido) VALUES ('" + tipo + "','" + mensagem + "','0')")
+            "INSERT INTO medico (tipo, mensagem, recebido, paciente) VALUES ('" + tipo + "','" + mensagem + "','0','" + str(
+        idPaciente) + "')")
     cursor.execute(insert_stmt)
     connSQL.commit()

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import time
-from SocketIO import *
+from RecebeServer import *
 from Functions import *
 from threading import Thread, Lock, BoundedSemaphore, Semaphore
 
@@ -43,7 +43,7 @@ def authPacientes(connS):
     print "---------------------------"
     print "Iniciando authPaciente"
     print "---------------------------"
-    print "Listando Pacientes"
+    print "Listando Pacientes Aguardando aprovacao"
     myLock.release()
     x="AuthPacienteList"
     sendServer(connS, x)
@@ -57,6 +57,36 @@ def authPacientes(connS):
     sendServer(connS, vetorToString(data))
     time.sleep(0.3)
 
+def listPacientes(connS):
+    myLock.acquire()
+    print "---------------------------"
+    print "Iniciando Lista de pacientes"
+    print "---------------------------"
+    print "Listando Pacientes Aprovados"
+    myLock.release()
+    x="PacienteList"
+    sendServer(connS, x)
+    time.sleep(0.3)
+
+def histPacientes(connS):
+    myLock.acquire()
+    print "---------------------------"
+    print "Iniciando histPaciente"
+    print "---------------------------"
+    print "Listando Seus Pacientes"
+    myLock.release()
+    x="PacienteList"
+    sendServer(connS, x)
+    time.sleep(0.3)
+    myLock.acquire()
+    data = []
+    data.append("PacienteHistorico")
+    x = raw_input("digite o id do usuario que deseja ver o historico: ")
+    data.append(x)
+    myLock.release()
+    sendServer(connS, vetorToString(data))
+    time.sleep(0.3)
+
 
 def menu1(connS):
     myLock.acquire()
@@ -64,10 +94,10 @@ def menu1(connS):
     myLock.release()
     while (x != "1" and x != "2"):
         if (x != "1" and x != "2"):
-            time.sleep(0.3)
-            myLock.acquire()
+            time.sleep(0.5)
+            #myLock.acquire()
             x = raw_input("voce digitou errado digite 1 para login 2 para cadastro: ")
-            myLock.release()
+            #myLock.release()
     if x == "1":
         login(connS)
     if x == "2":
@@ -75,19 +105,21 @@ def menu1(connS):
     time.sleep(0.3)
 
 def menu2(connS):
-    myLock.acquire()
-    x = raw_input("digite 1-Autorizar Pacientes 2-nada: ")
-    myLock.release()
-    while (x != "1" and x != "2"):
-        if (x != "1" and x != "2"):
-            time.sleep(0.3)
-            myLock.acquire()
+    #myLock.acquire()
+    x = raw_input("digite 1-Autorizar Pacientes 2-listar pacientes: ")
+    #myLock.release()
+    while (x != "1" and x != "2" and x != "3"):
+        if (x != "1" and x != "2" and x != "3"):
+            time.sleep(0.5)
+            #myLock.acquire()
             x = raw_input("voce digitou errado: ")
-            myLock.release()
+            #yLock.release()
     if x == "1":
         authPacientes(connS)
     if x == "2":
-        cadastro(connS)
+        listPacientes(connS)
+    if x == "3":
+        histPacientes(connS)
     time.sleep(0.3)
 
 if __name__ == "__main__":

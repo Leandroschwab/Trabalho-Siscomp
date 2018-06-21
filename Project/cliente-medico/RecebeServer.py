@@ -14,11 +14,11 @@ def recvServer(connS, myLock, varData):
     while 1:
         data = connS.recv(1024)  # Recebe os dados
         if not data: break
-        # print "Debug recebeu data: " + str(data)
+        #print "Debug recebeu data: " + str(data)
         msgRec = str(data).split("-+,+-")
         for linha in msgRec:
             msgRecA = linha.split("-,-")
-            # print "Debug recebeu linha: " + str(linha)
+            print "Debug recebeu linha: " + str(linha)
             if msgRecA[0] == "MsgCadastro":
                 if msgRecA[1] == "ErroCadastro":
                     myLock.acquire()
@@ -56,4 +56,31 @@ def recvServer(connS, myLock, varData):
                     myLock.acquire()
                     print msgRecA[2]
                     myLock.release()
+            if msgRecA[0] == "alertaSensorPaciente":
+                myLock.acquire()
+                print msgRecA[1]
+                myLock.release()
+            if msgRecA[0] == "AlertaNovoPaciente":
+                myLock.acquire()
+                print msgRecA[1]
+                myLock.release()
+            if msgRecA[0] == "MsgListaAprovados":
+                if msgRecA[1] == "FalhaLista":
+                    myLock.acquire()
+                    print msgRecA[2]
+                    myLock.release()
+                if msgRecA[1] == "SucessoLista":
+                    myLock.acquire()
+                    print msgRecA[2]
+                    myLock.release()
+            if msgRecA[0] == "MsgListaHistorico":
+                if msgRecA[1] == "FalhaLista":
+                    myLock.acquire()
+                    print msgRecA[2]
+                    myLock.release()
+                if msgRecA[1] == "SucessoLista":
+                    myLock.acquire()
+                    print msgRecA[2]
+                    myLock.release()
+
 
