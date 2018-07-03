@@ -41,3 +41,7 @@ def recvServer(connS,myLock,varData):
                 myLock.acquire()
                 print msgRecA[1]
                 myLock.release()
+            if msgRecA[0] == "MensagemChat":
+                myLock.acquire()
+                print msgRecA[1]
+                myLock.release()

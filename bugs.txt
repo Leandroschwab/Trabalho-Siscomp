@@ -1,3 +1,2 @@
-buffer do socket acumula- solucao fazer um outro split , altera o conn.sendall para sennd client
 
-ao fazer login cria um novo theead para enviar dados de background
+medico-servidor tenta acessar historico de paciente q nao existe

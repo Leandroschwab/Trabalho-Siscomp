@@ -51,6 +51,12 @@ def listPacienteHistorico(conn, idMedico, idPaciente):
     else:
         sendServer(conn, "MsgListaAutoriza-,-FalhaLista-,-Nao foi encontrado historico")
 
+def saveChatToPaciente(myLock, idMedico,  idPaciente, mensagem):
+    connSQL = sqlite3.connect('db/' + str(idMedico) + '.db')
+    cursor = connSQL.cursor()
+    insert_stmt = ("INSERT INTO id" + str(idPaciente) + "chat (destinatario, mensagem, recebido) VALUES ('" + idPaciente + "','" + mensagem + "','0')")
+    cursor.execute(insert_stmt)
+    connSQL.commit()
 
 # fim das funçoes medico
 # inicio funçoes Paciente
@@ -107,5 +113,12 @@ def saveMensagemMedico(myLock, idMedico, tipo, mensagem, idPaciente):
     insert_stmt = (
             "INSERT INTO medico (tipo, mensagem, recebido, paciente) VALUES ('" + tipo + "','" + mensagem + "','0','" + str(
         idPaciente) + "')")
+    cursor.execute(insert_stmt)
+    connSQL.commit()
+
+def saveChatToMedic(myLock, idMedico,  idPaciente, mensagem):
+    connSQL = sqlite3.connect('db/' + str(idMedico) + '.db')
+    cursor = connSQL.cursor()
+    insert_stmt = ("INSERT INTO id" + str(idPaciente) + "chat (destinatario, mensagem, recebido) VALUES ('" + idMedico + "','" + mensagem + "','0')")
     cursor.execute(insert_stmt)
     connSQL.commit()

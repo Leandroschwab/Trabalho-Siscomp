@@ -18,7 +18,7 @@ def recvServer(connS, myLock, varData):
         msgRec = str(data).split("-+,+-")
         for linha in msgRec:
             msgRecA = linha.split("-,-")
-            print "Debug recebeu linha: " + str(linha)
+            print "Debug recebeu linha: " + str(msgRecA[0])
             if msgRecA[0] == "MsgCadastro":
                 if msgRecA[1] == "ErroCadastro":
                     myLock.acquire()
@@ -82,5 +82,8 @@ def recvServer(connS, myLock, varData):
                     myLock.acquire()
                     print msgRecA[2]
                     myLock.release()
-
+            if msgRecA[0] == "MensagemChat":
+                myLock.acquire()
+                print msgRecA[1]
+                myLock.release()
 

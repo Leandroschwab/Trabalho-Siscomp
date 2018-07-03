@@ -38,6 +38,7 @@ def login(connS):
     sendServer(connS, vetorToString(data))
     time.sleep(0.3)
 
+
 def authPacientes(connS):
     myLock.acquire()
     print "---------------------------"
@@ -45,7 +46,7 @@ def authPacientes(connS):
     print "---------------------------"
     print "Listando Pacientes Aguardando aprovacao"
     myLock.release()
-    x="AuthPacienteList"
+    x = "AuthPacienteList"
     sendServer(connS, x)
     time.sleep(0.3)
     myLock.acquire()
@@ -57,6 +58,7 @@ def authPacientes(connS):
     sendServer(connS, vetorToString(data))
     time.sleep(0.3)
 
+
 def listPacientes(connS):
     myLock.acquire()
     print "---------------------------"
@@ -64,18 +66,18 @@ def listPacientes(connS):
     print "---------------------------"
     print "Listando Pacientes Aprovados"
     myLock.release()
-    x="PacienteList"
+    x = "PacienteList"
     sendServer(connS, x)
     time.sleep(0.3)
+
 
 def histPacientes(connS):
     myLock.acquire()
     print "---------------------------"
     print "Iniciando histPaciente"
     print "---------------------------"
-    print "Listando Seus Pacientes"
     myLock.release()
-    x="PacienteList"
+    x = "PacienteList"
     sendServer(connS, x)
     time.sleep(0.3)
     myLock.acquire()
@@ -88,39 +90,73 @@ def histPacientes(connS):
     time.sleep(0.3)
 
 
+def chat(connS):
+    myLock.acquire()
+    print "---------------------------"
+    print "Iniciando chat"
+    print "---------------------------"
+    myLock.release()
+    myLock.release()
+    x = "PacienteList"
+    sendServer(connS, x)
+    time.sleep(0.3)
+    myLock.acquire()
+    data = []
+    data.append("ChatStart")
+    xPaciente = raw_input("digite o id do usuario que deseja iniciar o chat: ")
+    data.append(xPaciente)
+    myLock.release()
+    sendServer(connS, vetorToString(data))
+    time.sleep(0.3)
+
+    # myLock.acquire()
+    x = raw_input("digite sua mensagem ou digite 'exit' para sair: ")
+    # myLock.release()
+    while (x != "exit"):
+        time.sleep(0.3)
+        men = "ChatMedico-,-" + xPaciente + "-,-" + x
+        sendServer(connS, men)
+        # myLock.acquire()
+        x = raw_input("digite sua mensagem ou digite 'exit' para sair: ")
+        # myLock.release()
+    sendServer(connS, "ChatEnd")
+    time.sleep(0.3)
+
+
 def menu1(connS):
     myLock.acquire()
     x = raw_input("digite 1-login 2-cadastro: ")
     myLock.release()
     while (x != "1" and x != "2"):
-        if (x != "1" and x != "2"):
-            time.sleep(0.5)
-            #myLock.acquire()
-            x = raw_input("voce digitou errado digite 1 para login 2 para cadastro: ")
-            #myLock.release()
+        time.sleep(0.5)
+        # myLock.acquire()
+        x = raw_input("voce digitou errado digite 1 para login 2 para cadastro: ")
+        # myLock.release()
     if x == "1":
         login(connS)
     if x == "2":
         cadastro(connS)
     time.sleep(0.3)
 
+
 def menu2(connS):
-    #myLock.acquire()
-    x = raw_input("digite 1-Autorizar Pacientes 2-listar pacientes: ")
-    #myLock.release()
-    while (x != "1" and x != "2" and x != "3"):
-        if (x != "1" and x != "2" and x != "3"):
-            time.sleep(0.5)
-            #myLock.acquire()
-            x = raw_input("voce digitou errado: ")
-            #yLock.release()
+    # myLock.acquire()
+    x = raw_input("digite 1-Autorizar Pacientes 2-listar pacientes 3-Historico Paciente 4-abrir chat: ")
+    # myLock.release()
+    while (x != "1" and x != "2" and x != "3" and x != "4"):
+        # myLock.acquire()
+        x = raw_input("digite 1-Autorizar Pacientes 2-listar pacientes 3-Historico Paciente 4-abrir chat: ")
+        # yLock.release()
     if x == "1":
         authPacientes(connS)
     if x == "2":
         listPacientes(connS)
     if x == "3":
         histPacientes(connS)
+    if x == "4":
+        chat(connS)
     time.sleep(0.3)
+
 
 if __name__ == "__main__":
 
@@ -138,12 +174,12 @@ if __name__ == "__main__":
     print "Conectado"
     myLock.release()
     varData['logado'] = False
-    t = Thread(target=recvServer, args=(connS,myLock,varData))
+    t = Thread(target=recvServer, args=(connS, myLock, varData))
     t.start()
 
     time.sleep(0.3)
     while 1:
-        if varData['logado'] == False :
+        if varData['logado'] == False:
             menu1(connS)
         if varData['logado']:
             menu2(connS)

@@ -28,9 +28,9 @@ def novaConn(conn, myLock):
 
     conn.close()  # Fecha conexão
 
-
-def medicoLogado(conn, myLock, idMedico):
-    t = Thread(target=backGrondMedico, args=(conn, myLock, idMedico))
+def medicoLogado(conn, myLock, idMedico,varData):
+    varData['chat'] = False
+    t = Thread(target=backGrondMedico, args=(conn, myLock, idMedico,varData))
     t.start()
     while 1:
         data = conn.recv(1024)  # Recebe os dados
@@ -49,20 +49,35 @@ def medicoLogado(conn, myLock, idMedico):
                 listPacienteDB(conn, idMedico)
             if msgRecA[0] == "PacienteHistorico":
                 listPacienteHistorico(conn, idMedico, msgRecA[1])
+            if msgRecA[0] == "ChatStart":
+                varData['chat'] = msgRecA[1]
+            if msgRecA[0] == "ChatMedico":
+                saveChatToPaciente(myLock, idMedico, msgRecA[1], msgRecA[2])
+            if msgRecA[0] == "ChatEnd":
+                varData['chat'] = False
 
-def pacienteLogado(conn, myLock, idPaciente, idMedico, nomeP):
+def pacienteLogado(conn, myLock, idPaciente, idMedico, nomeP,varData):
+    varData['chat'] = False
+    t = Thread(target=backGrondPaciente, args=(conn, myLock, idPaciente, idMedico,varData))
+    t.start()
     while 1:
         data = conn.recv(1024)  # Recebe os dados
         if not data: break
-        print "Servidou recebeu data: " + str(data)
+        #print "Servidou recebeu data: " + str(data)
         msgRec = str(data).split("-+,+-")
         for linha in msgRec:
             msgRecA = linha.split("-,-")
-            print "Servidou recebeu linha: " + str(linha)
+            #print "Servidou recebeu linha: " + str(linha)
             print "Servidou msgRecA: " + msgRecA[0]
             if msgRecA[0] == "ColetaSensores":
                 recSensors(conn, myLock, idPaciente, idMedico, nomeP, msgRecA[1], msgRecA[2], msgRecA[3], msgRecA[4],
                            msgRecA[5], msgRecA[6])
+            if msgRecA[0] == "ChatStart":
+                varData['chat'] = True
+            if msgRecA[0] == "ChatCliente":
+                saveChatToMedic(myLock, idMedico, idPaciente, msgRecA[1])
+            if msgRecA[0] == "ChatEnd":
+                varData['chat'] = False
 
 def cadastroMedico(conn, nome, user, senha):
     connSQL = sqlite3.connect('db/server.db')
@@ -82,7 +97,6 @@ def cadastroMedico(conn, nome, user, senha):
         print "Servidou: Novo Medico id: " + str(data2[0])
         sendServer(conn, "MsgCadastro-,-SucessoCadastro-,-Novo Medico cadastrado com Sucesso voce pode fazer o login")
 
-
 def loginMedico(conn, myLock, user, senha):
     connSQL = sqlite3.connect('db/server.db')
     cursor = connSQL.cursor()
@@ -93,8 +107,9 @@ def loginMedico(conn, myLock, user, senha):
             if data[4] == 1:  # verifica se o usuario é medico
                 print "Servidou: Usuario logou com sucesso"
                 sendServer(conn, "MsgLogin-,-SucessoLogin-,-Paciente logado com sucesso")
-                medicoLogado(conn, myLock, data[0])
-
+                global varData
+                varData = {}
+                medicoLogado(conn, myLock, data[0],varData)
             else:
                 print "Servidou: paciente tentou fazer login no programa medico"
                 sendServer(conn, "MsgLogin-,-FalhaLogin-,-Utilize o programa do Paciente")
@@ -104,7 +119,6 @@ def loginMedico(conn, myLock, user, senha):
     else:
         print "Servidou: Usuario nao existe"
         sendServer(conn, "MsgLogin-,-FalhaLogin-,-Usuario incorreto")
-
 
 def cadastroPaciente(conn, myLock, nome, user, senha, medicoid):
     connSQL = sqlite3.connect('db/server.db')
@@ -148,7 +162,9 @@ def loginPaciente(conn, myLock, user, senha):
                 if data[6] == 1:  # verifica se o medico ja autorizou o paciente
                     print "Servidou: Usuario logou com sucesso"
                     sendServer(conn, "MsgLogin-,-SucessoLogin-,-Paciente logado com sucesso")
-                    pacienteLogado(conn, myLock, data[0], data[5],data[1])
+                    global varData
+                    varData = {}
+                    pacienteLogado(conn, myLock, data[0], data[5],data[1],varData)
                 else:
                     print "Servidou: Usuario nao autorizado"
                     sendServer(conn, "MsgLogin-,-FalhaLogin-,-Paciente Nao foi autorizado")

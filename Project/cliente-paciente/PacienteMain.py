@@ -34,7 +34,6 @@ def login(connS):
     print "---------------------------"
     print "Iniciando Login"
     print "---------------------------"
-    print "Login iniciado"
     myLock.release()
     data = []
     data.append("LoginPaciente")
@@ -43,6 +42,27 @@ def login(connS):
     x = raw_input("digite sua senha: ")
     data.append(x)
     sendServer(connS, vetorToString(data))
+    time.sleep(0.3)
+
+def chat(connS):
+    sendServer(connS, "ChatStart")
+    time.sleep(0.5)
+    myLock.acquire()
+    print "---------------------------"
+    print "Iniciando Chat"
+    print "---------------------------"
+    myLock.release()
+    #myLock.acquire()
+    x = raw_input("digite sua mensagem ou digite 'exit' para sair: ")
+    #myLock.release()
+    while (x != "exit"):
+        time.sleep(0.3)
+        men = "ChatCliente-,-"+x
+        sendServer(connS, men)
+        #myLock.acquire()
+        x = raw_input("digite sua mensagem ou digite 'exit' para sair: ")
+        #myLock.release()
+    sendServer(connS, "ChatEnd")
     time.sleep(0.3)
 
 def menu1(connS):
@@ -61,6 +81,18 @@ def menu1(connS):
     time.sleep(0.3)
 
 def menu2(connS):
+    #myLock.acquire()
+    x = raw_input("digite 1-iniciar chat com medico 2-nada: ")
+    #myLock.release()
+    while (x != "1" and x != "2"):
+        if (x != "1" and x != "2"):
+            #myLock.acquire()
+            x = raw_input("voce digitou errado digite 1 para iniciar chat 2 para nada: ")
+            #myLock.release()
+    if x == "1":
+        chat(connS)
+    if x == "2":
+        print "nada"
     time.sleep(0.3)
 
 if __name__ == "__main__":
