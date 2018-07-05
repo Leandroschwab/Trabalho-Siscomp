@@ -13,8 +13,3 @@ def somAlarm():
     playsound('alarm.mp3')
 def somChat():
     playsound('chat.mp3')
-
-somAlarm()
-somChat()
-somChat()
-somChat()
