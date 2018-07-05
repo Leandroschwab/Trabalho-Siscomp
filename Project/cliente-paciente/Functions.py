@@ -1,3 +1,5 @@
+from playsound import playsound
+
 def vetorToString(vetor):
     i=0
     mensagem = vetor[i]
@@ -7,3 +9,12 @@ def vetorToString(vetor):
         i += 1
     return mensagem
 
+def somAlarm():
+    playsound('alarm.mp3')
+def somChat():
+    playsound('chat.mp3')
+
+somAlarm()
+somChat()
+somChat()
+somChat()

@@ -9,11 +9,18 @@ import time
 def sendServer(connS, mensagem):
     connS.sendall(mensagem + "-+,+-")  # Envia dados
 
-
 def backGroundTask(connS, myLock, varData):
     while 1:
-        sensores(connS, myLock, varData)
-        time.sleep(60)
+        if varData['ativo'] == False:
+            break
+        try:
+            time.sleep(5)
+            sensores(connS, myLock, varData)
+            time.sleep(55)
+        except Exception as e:
+            print('Um erro ocorreu!')
+            print e
+            break
 
 def sensores(connS, myLock, varData):
     data = []
@@ -25,7 +32,6 @@ def sensores(connS, myLock, varData):
     data.append(str(valor[1]))
     data.append(str(getTemp()))
     data.append(str(getLocal()))
-    data.append(str(datetime.now()))
     sendServer(connS, vetorToString(data))
 
 def getBatimento():

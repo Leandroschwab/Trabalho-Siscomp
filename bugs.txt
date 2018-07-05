@@ -1,2 +1,0 @@
-
-medico-servidor tenta acessar historico de paciente q nao existe

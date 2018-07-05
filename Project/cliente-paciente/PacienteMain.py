@@ -12,7 +12,10 @@ def cadastro(connS):
     print "---------------------------"
     print "Iniciando Cadastro"
     print "---------------------------"
+    sendServer(connS,"MedicoList")
+    print "listando medicos"
     myLock.release()
+    time.sleep(0.6)
     data = []
     data.append("CadastroPaciente")
     x = raw_input("digite seu nome: ")
@@ -21,9 +24,7 @@ def cadastro(connS):
     data.append(x)
     x = raw_input("digite sua senha: ")
     data.append(x)
-    x = raw_input("digite o nome o id: digite 1 para listar os medicos: ")
-    while x == "1":
-        x = raw_input("digite o id do medico: ")
+    x = raw_input("digite o nome o id do medico: ")
     data.append(x)
     sendServer(connS, vetorToString(data))
     time.sleep(0.3)
@@ -99,10 +100,11 @@ if __name__ == "__main__":
 
     global varData
     varData = {}
+    varData['ativo'] = True
     global myLock
     myLock = Semaphore()
     HOST = '127.0.0.1'  # The remote host
-    PORT = 50007  # The same port as used by the server
+    PORT = 50999  # The same port as used by the server
     connS = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # qw12IPv4,tipo de socket
     connS.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     connS.connect((HOST, PORT))  # Abre uma conexão com IP e porta especificados
@@ -111,13 +113,20 @@ if __name__ == "__main__":
     print "Conectado"
     myLock.release()
     varData['logado'] = False
-
-
-    t = Thread(target=recvServer, args=(connS,myLock,varData))
+    t = Thread(target=recvServer, args=(connS,myLock,varData)) # inicia o thread que recebe informacoes do servidor
     t.start()
     time.sleep(0.3)
     while 1:
-        if varData['logado'] == False :
-            menu1(connS)
-        if varData['logado']:
-            menu2(connS)
+        if varData['ativo'] == False:
+            break
+        try:
+            if varData['logado'] == False :
+                menu1(connS)
+            if varData['logado']:
+                menu2(connS)
+        except Exception as e:
+            print('Um erro ocorreu!')
+            print e
+            break
+    x = raw_input("finalizando o programa")
+    connS.close()

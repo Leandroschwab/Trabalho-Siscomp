@@ -1,6 +1,7 @@
 lock de acesso ao banco de dados no servidor
 
-salvar dados dos sensores no servidor.
+ 
 
 enviar alerta para medicos e pacientes
 
+mudar socket io para recebe server no medico
