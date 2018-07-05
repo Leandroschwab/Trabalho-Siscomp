@@ -1,4 +1,5 @@
-from playsound import playsound
+import os
+import time
 
 def vetorToString(vetor):
     i=0
@@ -10,6 +11,10 @@ def vetorToString(vetor):
     return mensagem
 
 def somAlarm():
-    playsound('alarm.mp3')
+    os.system('play --no-show-progress --null --channels 1 synth %s sine %f' % (0.3, 850))
+    time.sleep(0.1)
+    os.system('play --no-show-progress --null --channels 1 synth %s sine %f' % (0.3, 850))
 def somChat():
-    playsound('chat.mp3')
+    os.system('play --no-show-progress --null --channels 1 synth %s sine %f' % (0.2, 600))
+    time.sleep(0.1)
+    os.system('play --no-show-progress --null --channels 1 synth %s sine %f' % (0.2, 700))

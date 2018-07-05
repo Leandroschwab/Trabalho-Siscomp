@@ -65,10 +65,12 @@ def recvServer(connS, myLock, varData, pacienteList):
                     myLock.acquire()
                     print msgRecA[1]
                     myLock.release()
+                    somAlarm()
                 elif msgRecA[0] == "AlertaNovoPaciente":
                     myLock.acquire()
                     print msgRecA[1]
                     myLock.release()
+                    somAlarm()
                 elif msgRecA[0] == "MsgListaAprovados":
                     if msgRecA[1] == "FalhaLista":
                         myLock.acquire()
@@ -92,6 +94,7 @@ def recvServer(connS, myLock, varData, pacienteList):
                     myLock.acquire()
                     print msgRecA[1]
                     myLock.release()
+                    somChat()
                 elif msgRecA[0] == "Stop":
                     print 'finalizando recServer'
                     break

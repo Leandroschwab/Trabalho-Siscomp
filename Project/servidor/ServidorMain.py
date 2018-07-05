@@ -13,6 +13,7 @@ myLock['leitores']=0
 myLock['escritor']=0
 myLock['mutex'] = Semaphore()
 
+
 print "Servidor Rodando"
 while 1:
     s.listen(1)  # espera chegar pacotes na porta especificada

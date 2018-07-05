@@ -11,6 +11,8 @@ def novaConn(conn, myLock):
     global varData
     varData = {}
     varData['ativo'] = True
+    global socketLock
+    socketLock= Semaphore()
     while 1:
         if varData['ativo'] == False:
             print "finalizando thread Cliente"

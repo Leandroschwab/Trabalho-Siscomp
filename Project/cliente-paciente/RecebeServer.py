@@ -5,9 +5,9 @@ from Functions import *
 from threading import Thread, Lock, BoundedSemaphore, Semaphore
 
 def recvServer(connS,myLock,varData):
-    myLock.acquire()
+    myLock['print'].acquire()
     print "Cliente esta pronto para receber dados do servidor"
-    myLock.release()
+    myLock['print'].release()
     while 1:
         if varData['ativo'] == False:
             break
@@ -21,42 +21,44 @@ def recvServer(connS,myLock,varData):
                 print "Servidou recebeu linha: " + str(linha)
                 if msgRecA[0] == "MsgCadastro":
                     if msgRecA[1]=="ErroCadastro":
-                        myLock.acquire()
+                        myLock['print'].acquire()
                         print "Ocorreu um erro no cadastro: "+ msgRecA[2]
-                        myLock.release()
+                        myLock['print'].release()
                     if msgRecA[1]=="SucessoCadastro":
-                        myLock.acquire()
+                        myLock['print'].acquire()
                         print msgRecA[2]
-                        myLock.release()
+                        myLock['print'].release()
                 elif msgRecA[0] == "MsgLogin":
                     if msgRecA[1]=="FalhaLogin":
-                        myLock.acquire()
+                        myLock['print'].acquire()
                         print "Ocorreu um erro no login: "+ msgRecA[2]
-                        myLock.release()
+                        myLock['print'].release()
                     if msgRecA[1]=="SucessoLogin":
-                        myLock.acquire()
+                        myLock['print'].acquire()
                         varData['logado'] = True
                         print msgRecA[2]
-                        myLock.release()
+                        myLock['print'].release()
                         t = Thread(target=backGroundTask, args=(connS, myLock, varData))
                         t.start()
                 elif msgRecA[0] == "MsgListaMedicos":
                     if msgRecA[1]=="FalhaLista":
-                        myLock.acquire()
+                        myLock['print'].acquire()
                         print msgRecA[2]
-                        myLock.release()
+                        myLock['print'].release()
                     if msgRecA[1]=="SucessoLista":
-                        myLock.acquire()
+                        myLock['print'].acquire()
                         print msgRecA[2]
-                        myLock.release()
+                        myLock['print'].release()
                 elif msgRecA[0] == "alertaSensorPaciente":
-                    myLock.acquire()
+                    myLock['print'].acquire()
                     print msgRecA[1]
-                    myLock.release()
+                    myLock['print'].release()
+                    somAlarm()
                 elif msgRecA[0] == "MensagemChat":
-                    myLock.acquire()
+                    myLock['print'].acquire()
                     print msgRecA[1]
-                    myLock.release()
+                    myLock['print'].release()
+                    somChat()
                 elif msgRecA[0] == "Stop":
                     print 'finalizando recServer'
                     break
